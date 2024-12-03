@@ -10,7 +10,10 @@ import java.util.Arrays;
 import java.util.Properties;
 
 public class SimpleConsumer {
-    public static void main(String[] args) {
+
+    private static final String TOPIC_IN = "my_topic";
+
+    private static KafkaConsumer<String, String> buildConsumer() {
         // Kafka Consumer configuration
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092"); // Replace with your Kafka server(s)
@@ -21,9 +24,15 @@ public class SimpleConsumer {
 
         // Create the Kafka consumer
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        return consumer;
+    }
+
+    public static void main(String[] args) {
+        // Create the Kafka consumer
+        KafkaConsumer<String, String> consumer = buildConsumer();
 
         // Subscribe to the Kafka topic
-        String topic = "my_topic"; // Replace with your topic name
+        String topic = TOPIC_IN;
         consumer.subscribe(Arrays.asList(topic));
 
         // Poll for new messages from Kafka
@@ -45,4 +54,3 @@ public class SimpleConsumer {
         }
     }
 }
-

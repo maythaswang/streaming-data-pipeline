@@ -66,6 +66,19 @@ services:
     depends_on:
       - elasticsearch
 
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:6.2.10.amd64
+    env_file:
+      - .env 
+    networks:
+      sdp_net:
+        ipv4_address: 172.20.0.14
+    ports:
+      - "28083:28083"
+    depends_on:
+      - kafka
+      - elasticsearch
+
 volumes:
   es_data:
     driver: local
