@@ -1,13 +1,20 @@
-package com.datastreaming;
+package com.datastreaming.utility;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * A utility class to delete all data from an Elasticsearch index.
+ * This class sends a DELETE request to Elasticsearch to delete all data from the specified index.
+ */
 
 public class DeleteIndexData {
 
-    private static final String ELASTICSEARCH_HOST = "http://localhost:9200";
+    // Set the index name
     private static final String INDEX = "to-elastic-search";
+    private static final String ELASTICSEARCH_HOST = "http://localhost:9200";
 
     public static void main(String[] args) {
         try {
@@ -26,14 +33,12 @@ public class DeleteIndexData {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setDoOutput(true);
 
-                // Set the request body
                 String jsonInputString = "{ \"query\": { \"match_all\": {} } }";
                 try (OutputStream os = connection.getOutputStream()) {
-                    byte[] input = jsonInputString.getBytes("utf-8");
+                    byte[] input = jsonInputString.getBytes(StandardCharsets.UTF_8);
                     os.write(input, 0, input.length);
                 }
 
-                // Get the response
                 int responseCode = connection.getResponseCode();
                 System.out.println("Elasticsearch response code: " + responseCode);
 
