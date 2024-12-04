@@ -4,7 +4,7 @@
 
 [1] Right now, the topic name for sending from kafka to the sink is `to-elastic-search`, you can simply use them from normal producer node without any extra configurations. 
 
-[2] To access the content on elastic search use whatever is written in the `topics:` field which right now is `to-elastic-search`
+[2] To access the content on elastic search use whatever is written in the  `topics:` field which right now is `to-elastic-search` (for some reason index doesn't work)
 
 1.  Access the container 
 ```winpty docker exec -it <kafka-connect-container> bash```
@@ -33,7 +33,6 @@ curl -X POST "http://172.20.0.14:28083/connectors" \
           "key.converter.schemas.enable": "false",
           "value.converter": "org.apache.kafka.connect.json.JsonConverter",
           "value.converter.schemas.enable": "false",
-          "auto.create.index": "true",
           "index": "sample_index"
         }
       }'
