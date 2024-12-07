@@ -1,7 +1,9 @@
-package com.datastreaming;
+package com.datastreaming.examples;
 
+import com.datastreaming.AnimeDetailsProducer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -101,9 +103,24 @@ public class JikanAnimeDetailsConsumer {
                                     outputJson.put("rank", responseJson.has("rank") ? responseJson.get("rank").asInt() : 0);
                                     outputJson.put("mean", responseJson.has("score") ? responseJson.get("score").asDouble() : 0.0);
                                     outputJson.put("num_episodes", responseJson.has("episodes") ? responseJson.get("episodes").asInt() : 0);
-                                    outputJson.put("average_episode_duration", responseJson.has("duration") ? responseJson.get("duration").asText() : "");
-                                    outputJson.set("genres", responseJson.get("genres"));
-                                    outputJson.set("studios", responseJson.get("studios"));
+
+                                    // Filter out unwanted fields from genres
+                                    ArrayNode genresArray = objectMapper.createArrayNode();
+                                    for (JsonNode genre : responseJson.get("genres")) {
+                                        ObjectNode genreNode = objectMapper.createObjectNode();
+                                        genreNode.put("name", genre.get("name").asText());
+                                        genresArray.add(genreNode);
+                                    }
+                                    outputJson.set("genres", genresArray);
+
+                                    // Filter out unwanted fields from studios
+                                    ArrayNode studiosArray = objectMapper.createArrayNode();
+                                    for (JsonNode studio : responseJson.get("studios")) {
+                                        ObjectNode studioNode = objectMapper.createObjectNode();
+                                        studioNode.put("name", studio.get("name").asText());
+                                        studiosArray.add(studioNode);
+                                    }
+                                    outputJson.set("studios", studiosArray);
 
                                     // Serialize the transformed JSON
                                     String transformedMessage = objectMapper.writeValueAsString(outputJson);
