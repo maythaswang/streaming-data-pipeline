@@ -1,5 +1,6 @@
-package com.datastreaming;
+package com.datastreaming.examples;
 
+import com.datastreaming.AnimeDetailsProducer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -15,6 +16,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
@@ -23,18 +25,30 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
-public class JikanAnimeDetailsConsumer {
+public class MALAnimeDetailsConsumer {
 
     private static final String TOPIC_IN = "anime_details_topic";
-    private static final String TOPIC_OUT = "to-elastic-search";
+    private static final String TOPIC_OUT = "anime_details_topic";
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
-    private static final String JIKAN_API_URL_TEMPLATE = "https://api.jikan.moe/v4/anime/%d/full";
+    private static final String MAL_API_URL_TEMPLATE = "https://api.myanimelist.net/v2/anime/%d?fields=id,title,rank,mean,genres,num_episodes,average_episode_duration,studios";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final int TIMEOUT = 5000; // 5 seconds
     private static final int MAX_RETRIES = 3; // Maximum number of retries
 
     public static void main(String[] args) {
         try {
+            // Load properties from config file
+            Properties configProps = new Properties();
+            try (InputStream input = MALAnimeDetailsConsumer.class.getClassLoader().getResourceAsStream("config.properties")) {
+                if (input == null) {
+                    System.out.println("Failed to load config.properties");
+                    return;
+                }
+                configProps.load(input);
+            }
+
+            String clientId = configProps.getProperty("client_id");
+
             // Kafka Consumer configuration
             Properties consumerProps = new Properties();
             consumerProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
@@ -64,17 +78,17 @@ public class JikanAnimeDetailsConsumer {
                         System.out.println("No messages found");
                     } else {
                         for (ConsumerRecord<String, String> record : records) {
-                            Thread.sleep(1000);
                             boolean success = false;
                             int retries = 0;
 
                             while (!success && retries < MAX_RETRIES) {
                                 try {
                                     int animeId = Integer.parseInt(record.value());
-                                    String apiUrl = String.format(JIKAN_API_URL_TEMPLATE, animeId);
+                                    String apiUrl = String.format(MAL_API_URL_TEMPLATE, animeId);
                                     URL url = new URL(apiUrl);
                                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                                     connection.setRequestMethod("GET");
+                                    connection.setRequestProperty("X-MAL-CLIENT-ID", clientId);
                                     connection.setConnectTimeout(TIMEOUT);
                                     connection.setReadTimeout(TIMEOUT);
 
@@ -95,13 +109,13 @@ public class JikanAnimeDetailsConsumer {
                                     connection.disconnect();
 
                                     // Parse the API response
-                                    JsonNode responseJson = objectMapper.readTree(content.toString()).get("data");
+                                    JsonNode responseJson = objectMapper.readTree(content.toString());
                                     ObjectNode outputJson = objectMapper.createObjectNode();
-                                    outputJson.put("id", responseJson.has("mal_id") ? responseJson.get("mal_id").asInt() : 0);
+                                    outputJson.put("id", responseJson.has("id") ? responseJson.get("id").asInt() : 0);
                                     outputJson.put("title", responseJson.has("title") ? responseJson.get("title").asText() : "");
                                     outputJson.put("rank", responseJson.has("rank") ? responseJson.get("rank").asInt() : 0);
-                                    outputJson.put("mean", responseJson.has("score") ? responseJson.get("score").asDouble() : 0.0);
-                                    outputJson.put("num_episodes", responseJson.has("episodes") ? responseJson.get("episodes").asInt() : 0);
+                                    outputJson.put("mean", responseJson.has("mean") ? responseJson.get("mean").asDouble() : 0.0);
+                                    outputJson.put("num_episodes", responseJson.has("num_episodes") ? responseJson.get("num_episodes").asInt() : 0);
 
                                     // Filter out unwanted fields from genres
                                     ArrayNode genresArray = objectMapper.createArrayNode();
