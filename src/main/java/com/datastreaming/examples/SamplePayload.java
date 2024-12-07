@@ -1,4 +1,4 @@
-package com.datastreaming;
+package com.datastreaming.examples;
 
 import lombok.*;
 

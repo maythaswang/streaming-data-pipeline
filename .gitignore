@@ -83,3 +83,6 @@ bld/
 
 # JetBrains Rider
 *.sln.iml
+
+# MAL Client API Configuration
+src/main/resources/config.properties
