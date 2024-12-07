@@ -1,4 +1,4 @@
-package com.datastreaming;
+package com.datastreaming.examples;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

@@ -1,4 +1,4 @@
-package com.datastreaming;
+package com.datastreaming.examples;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.*;
