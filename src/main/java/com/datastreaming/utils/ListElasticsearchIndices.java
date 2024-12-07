@@ -1,4 +1,4 @@
-package com.datastreaming.utility;
+package com.datastreaming.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,4 +1,4 @@
-package com.datastreaming.examples;
+package com.datastreaming._deprecated;
 
 import lombok.*;
 

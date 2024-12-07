@@ -1,4 +1,4 @@
-package com.datastreaming.examples;
+package com.datastreaming._deprecated;
 
 import com.datastreaming.AnimeDetailsProducer;
 import com.fasterxml.jackson.databind.JsonNode;

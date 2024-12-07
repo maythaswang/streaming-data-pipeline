@@ -1,4 +1,4 @@
-package com.datastreaming.utility;
+package com.datastreaming.utils;
 
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.errors.TopicExistsException;
