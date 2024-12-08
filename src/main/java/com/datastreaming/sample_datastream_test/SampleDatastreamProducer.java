@@ -2,11 +2,13 @@ package com.datastreaming.sample_datastream_test;
 
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.errors.TimeoutException;
+
 import java.util.Properties;
+import org.apache.kafka.common.serialization.StringSerializer;
 
 public class SampleDatastreamProducer {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
-    private static final String TOPIC_OUT = "sample_datastream_raw";
+    private static final String TOPIC_OUT = "sample-datastream-raw";
     private static final int MAX_ITEM = 10_000_000;
 
     private static final StringBuilder stringBuilder = new StringBuilder();
@@ -15,9 +17,8 @@ public class SampleDatastreamProducer {
         // Kafka Producer configuration
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                "org.apache.kafka.common.serialization.StringSerializer");
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.ACKS_CONFIG, "all"); // Wait for all replicas to acknowledge
 
         // Create the producer
@@ -46,16 +47,18 @@ public class SampleDatastreamProducer {
         return producerCallback;
     }
 
-    private static String buildSampleMessage(){
+    private static String buildSampleMessage() {
         stringBuilder.append("{");
-        stringBuilder.append("username:");
-        stringBuilder.append("FOO"); // Randomize name here
-        stringBuilder.append(",id:");
+        stringBuilder.append("\"username\":");
+        stringBuilder.append("\"FOO\""); // Randomize name here
+        stringBuilder.append(",\"id\":");
         stringBuilder.append("12345"); // Randomize id here
-        stringBuilder.append(",message"); 
-        stringBuilder.append("HELLO FROM KAFKA!");
+        stringBuilder.append(",\"message\":");
+        stringBuilder.append("\"HELLO FROM KAFKA!\"");
         stringBuilder.append("}");
-        return stringBuilder.toString();
+        String out = stringBuilder.toString();
+        stringBuilder.setLength(0);
+        return out;
     }
 
     public static void main(String[] args) {
