@@ -1,22 +1,27 @@
-### Basic Instructions on how to setup connector for elasticsearch-sink 
-----------------------
+### Basic Instructions on how to setup connector for elasticsearch-sink
+
+---
+
 ※ This is just a patchwork solution for now.
 
-[1] Right now, the topic name for sending from kafka to the sink is `to-elastic-search`, you can simply use them from normal producer node without any extra configurations. 
+[1] Right now, the topic name for sending from kafka to the sink is `to-elastic-search`, you can simply use them from normal producer node without any extra configurations.
 
-[2] To access the content on elastic search use whatever is written in the  `topics:` field which right now is `to-elastic-search` (for some reason index doesn't work)
+[2] To access the content on elastic search use whatever is written in the `topics:` field which right now is `to-elastic-search` (for some reason index doesn't work)
 
-1.  Access the container 
-```winpty docker exec -it <kafka-connect-container> bash```
+1.  Access the container
+    `winpty docker exec -it <kafka-connect-container> bash`
 
-2. Run the following snippet  (use option2 and yes to all)
+2.  Run the following snippet (use option2 and yes to all)
+
 ```bash
 confluent-hub install confluentinc/kafka-connect-elasticsearch:latest
 ```
-3. Restart the container 
+
+3. Restart the container
 
 4. Run the following snippet
-4.1 Sink for "to-elastic-searech"
+   4.1 Sink for "to-elastic-searech"
+
 ```bash
 curl -X POST "http://172.20.0.14:28083/connectors" \
   -H "Content-Type: application/json" \
@@ -39,7 +44,8 @@ curl -X POST "http://172.20.0.14:28083/connectors" \
       }'
 ```
 
-4.2 Sink for "sample-datastream-es, sample-datastream-processed-es"
+4.2 Sink for `sample-datastream-es`
+
 ```bash
 curl -X POST "http://172.20.0.14:28083/connectors" \
   -H "Content-Type: application/json" \
@@ -48,7 +54,7 @@ curl -X POST "http://172.20.0.14:28083/connectors" \
         "config": {
           "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
           "tasks.max": "2",
-          "topics": "sample-datastream-es, sample-datastream-processed-es",
+          "topics": "sample-datastream-es",
           "key.ignore": "true",
           "schema.ignore": "true",
           "connection.url": "http://172.20.0.12:9200",
@@ -61,3 +67,26 @@ curl -X POST "http://172.20.0.14:28083/connectors" \
         }
       }'
 ```
+4.3 Sink for `sample-datastream-processed-es`
+```bash
+curl -X POST "http://172.20.0.14:28083/connectors" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "name": "elasticsearch-sink-sample-datastream-processed",
+        "config": {
+          "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
+          "tasks.max": "2",
+          "topics": "sample-datastream-processed-es",
+          "key.ignore": "true",
+          "schema.ignore": "true",
+          "connection.url": "http://172.20.0.12:9200",
+          "type.name": "_doc",
+          "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+          "key.converter.schemas.enable": "false",
+          "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+          "value.converter.schemas.enable": "false",
+          "index.name": "${topic}",
+          "index": "sample_index"
+        }
+      }'
+  ```
