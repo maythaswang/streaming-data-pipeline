@@ -1,4 +1,4 @@
-package com.datastreaming;
+package com.datastreaming.AnimeDetails;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

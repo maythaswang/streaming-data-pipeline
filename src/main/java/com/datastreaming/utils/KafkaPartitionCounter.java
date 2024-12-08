@@ -1,4 +1,4 @@
-package com.datastreaming.utility;
+package com.datastreaming.utils;
 
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.DescribeTopicsResult;

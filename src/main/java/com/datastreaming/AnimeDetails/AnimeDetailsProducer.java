@@ -1,4 +1,4 @@
-package com.datastreaming;
+package com.datastreaming.AnimeDetails;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;

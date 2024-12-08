@@ -1,4 +1,4 @@
-package com.datastreaming.utility;
+package com.datastreaming.utils;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
