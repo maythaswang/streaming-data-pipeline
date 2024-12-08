@@ -30,6 +30,8 @@ public class SampleDatastreamConsumer {
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.ACKS_CONFIG, "all"); // Wait for all replicas to acknowledge
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 300000);  // Time before message delivery
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 200);  // Max time before sending message batch 
 
         // Create the producer
         KafkaProducer<String, String> producer = new KafkaProducer<>(props);
@@ -83,7 +85,7 @@ public class SampleDatastreamConsumer {
         try {
             while (true) {
 
-                var records = consumer.poll(Duration.ofMillis(1000)); // Timeout in milliseconds
+                var records = consumer.poll(Duration.ofMillis(200)); // Timeout in milliseconds
 
                 for (ConsumerRecord<String, String> record : records) {
 
