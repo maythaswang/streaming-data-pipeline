@@ -21,7 +21,6 @@ public class SampleDatastreamConsumer {
     private static final String TOPIC_IN = "sample-datastream-raw";
     private static final String TOPIC_OUT = "sample-datastream-es";
 
-    private static final StringBuilder stringBuilder = new StringBuilder();
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private static KafkaProducer<String, String> buildProducer() {
@@ -89,27 +88,23 @@ public class SampleDatastreamConsumer {
                 for (ConsumerRecord<String, String> record : records) {
 
                     // System.out.printf("Consumed record with key: %s, value: %s, at offset %d%n",
-                            // record.key(), record.value(), record.offset());
+                    // record.key(), record.value(), record.offset());
 
                     // Reformat records
-                    // try {
-                        JsonNode recordContent = objectMapper.readTree(record.value());
-                        ObjectNode outputNode = objectMapper.createObjectNode();
-                        outputNode.put("id", recordContent.has("id") ? recordContent.get("id").asInt() : 0);
-                        outputNode.put("username",
-                                recordContent.has("username") ? recordContent.get("username").asText() : "");
-                        outputNode.put("message",
-                                recordContent.has("message") ? recordContent.get("message").asText() : "");
+                    JsonNode recordContent = objectMapper.readTree(record.value());
+                    ObjectNode outputNode = objectMapper.createObjectNode();
+                    outputNode.put("id", recordContent.has("id") ? recordContent.get("id").asInt() : 0);
+                    outputNode.put("username",
+                            recordContent.has("username") ? recordContent.get("username").asText() : "");
+                    outputNode.put("message",
+                            recordContent.has("message") ? recordContent.get("message").asText() : "");
 
-                        // Serialize to JSON
-                        String jsonValue = objectMapper.writeValueAsString(outputNode);
+                    // Serialize to JSON
+                    String jsonValue = objectMapper.writeValueAsString(outputNode);
 
-                        ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC_OUT, null,
-                                jsonValue);
-                        producer.send(producerRecord, producerCallback);
-                    // } catch (Exception e) {
-                    //     e.printStackTrace();
-                    // }
+                    ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC_OUT, null, jsonValue);
+                    producer.send(producerRecord, producerCallback);
+
                 }
             }
 
