@@ -27,19 +27,6 @@ public class CSVDataProducer {
     private static final String CSV_FILE_PATH = "src/main/resources/data/anime_filtered.csv";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * Creates and configures a Kafka producer.
-     *
-     * @return KafkaProducer object.
-     */
-    private static KafkaProducer<String, String> buildProducer() {
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        return new KafkaProducer<>(props);
-    }
-
     public static void main(String[] args) {
         KafkaProducer<String, String> producer = buildProducer();
 
@@ -68,4 +55,18 @@ public class CSVDataProducer {
             producer.close();
         }
     }
+
+    /**
+     * Creates and configures a Kafka producer.
+     *
+     * @return KafkaProducer object.
+     */
+    private static KafkaProducer<String, String> buildProducer() {
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        return new KafkaProducer<>(props);
+    }
+
 }
