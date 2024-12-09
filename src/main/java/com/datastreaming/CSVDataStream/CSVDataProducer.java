@@ -11,12 +11,27 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Properties;
 
+/**
+ * This class reads a CSV file and sends each line as a JSON object to a Kafka topic.
+ * The CSV file can be found at https://www.kaggle.com/datasets/azathoth42/myanimelist?resource=download&select=anime_filtered.csv
+ * This CSV has been altered to only include SFW anime.
+ * The JSON object that is sent to the Kafka topic has the following format:
+ * {
+ * "anime_id": <anime_id>,
+ * "title": "<title>"
+ * }
+ */
 public class CSVDataProducer {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String TOPIC_OUT = "sample-datastream-raw";
     private static final String CSV_FILE_PATH = "src/main/resources/data/anime_filtered_sfw.csv";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Creates and configures a Kafka producer.
+     *
+     * @return KafkaProducer object.
+     */
     private static KafkaProducer<String, String> buildProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);

@@ -26,6 +26,23 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
+/**
+ * This class consumes JSON data from a Kafka topic and uses the MyAnimeList API and Jikan API for extra information.
+ * The JSON data is enriched with additional information and sent to another Kafka topic.
+ * The new JSON object has the following format:
+ * {
+ * "id": <id>,
+ * "title": "<title>",
+ * "rank": <rank>,
+ * "mean": <mean>,
+ * "num_episodes": <num_episodes>,
+ * "genres": [{"name": "<genre_name>"}],
+ * "studios": [{"name": "<studio_name>"}]
+ * }
+ * The MyAnimeList API is used first, and if it fails, the Jikan API is used as a fallback.
+ * The CSV file is outdated so a retry mechanism is implemented to verify if the anime is still available.
+ */
+
 public class CSVDataConsumer {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String GROUP_ID = "sample-ds-group";
