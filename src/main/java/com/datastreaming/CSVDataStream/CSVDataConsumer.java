@@ -47,7 +47,7 @@ public class CSVDataConsumer {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String GROUP_ID = "sample-ds-group";
     private static final String TOPIC_IN = "sample-datastream-raw";
-    private static final String TOPIC_OUT = "sample-datastream-es";
+    private static final String TOPIC_OUT = "sample-enriched-datastream";
     private static final String MAL_API_URL_TEMPLATE = "https://api.myanimelist.net/v2/anime/%d?fields=id,title,rank,mean,genres,num_episodes,average_episode_duration,studios";
     private static final String JIKAN_API_URL_TEMPLATE = "https://api.jikan.moe/v4/anime/%d/full";
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -101,7 +101,7 @@ public class CSVDataConsumer {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"); // Disable auto commit
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
         return new KafkaConsumer<>(props);
     }
 

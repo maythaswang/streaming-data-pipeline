@@ -24,7 +24,7 @@ import java.util.Properties;
 public class CSVDataProducer {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String TOPIC_OUT = "sample-datastream-raw";
-    private static final String CSV_FILE_PATH = "src/main/resources/data/anime_filtered_sfw.csv";
+    private static final String CSV_FILE_PATH = "src/main/resources/data/anime_filtered.csv";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
