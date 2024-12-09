@@ -25,7 +25,7 @@ public class SampleDatastreamConsumerKstream {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String APPLICATION_ID = "user-message-count";
     private static final String TOPIC_IN = "sample-datastream-raw";
-    private static final String TOPIC_OUT = "sample-datastream-processed-es";
+    private static final String TOPIC_OUT = "sample-count-es";
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -34,7 +34,7 @@ public class SampleDatastreamConsumerKstream {
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_ID);
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 0);
-        props.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/kafka-streams");
+        props.put(StreamsConfig.STATE_DIR_CONFIG, "/tmp/kafka-streams/sample-count");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         return props;
@@ -70,11 +70,11 @@ public class SampleDatastreamConsumerKstream {
                     ObjectNode outputNode = objectMapper.createObjectNode();
                     outputNode.put("username", key);
                     outputNode.put("messageCount", value);
-                    System.out.println("count: " + key + ", " + value);
-                    return new KeyValue<>(key, outputNode.toString());
+                    System.out.println(outputNode.toString());
+                    return new KeyValue<>("{\"test\": 1}", outputNode.toString());
                 })
                 .to(TOPIC_OUT, Produced.with(Serdes.String(), Serdes.String()));
-
+                
         // Build Topology
         Topology topology = streamsBuilder.build();
 

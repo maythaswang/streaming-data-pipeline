@@ -38,6 +38,7 @@ services:
       - xpack.security.enabled=false
       - network.host=0.0.0.0
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "action.auto_create_index=true"
     volumes:
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
       - es_data:/usr/share/elasticsearch/data

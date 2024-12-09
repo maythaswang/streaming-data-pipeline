@@ -7,6 +7,8 @@ public class KafkaConfig {
     public static void main(String args[]) {
         // KafkaTopicManager.increaseTopicPartitions("sample-datastream-raw", 3, REPLICATION_FACTOR);
         // KafkaTopicManager.countTopicPartitions("sample-datastream-raw");
+        // KafkaTopicManager.deleteTopic("user-message-count-KSTREAM-AGGREGATE-STATE-STORE-0000000004-changelog");
+        // KafkaTopicManager.deleteTopic("user-message-count-KSTREAM-AGGREGATE-STATE-STORE-0000000004-repartition");
         KafkaTopicManager.getAllKafkaTopics();
     }
 }
