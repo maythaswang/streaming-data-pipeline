@@ -86,3 +86,7 @@ bld/
 
 # MAL Client API Configuration
 src/main/resources/config.properties
+
+# Sample Dataset
+src/main/resources/data/anime_filtered.csv
+src/main/resources/data/anime_filtered_sfw.csv
