@@ -53,7 +53,7 @@ public class CSVDataConsumer {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final int TIMEOUT = 5000;
     private static final int MAL_RETRY_INTERVAL = 60000;
-    private static final int JIKAN_INTERVAL = 750;
+    private static final int JIKAN_INTERVAL = 800;
     private static final int MAX_RETRIES = 3;
 
     public static void main(String[] args) {
