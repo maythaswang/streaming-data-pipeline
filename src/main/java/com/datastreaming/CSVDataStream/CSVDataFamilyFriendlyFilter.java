@@ -27,7 +27,7 @@ public class CSVDataFamilyFriendlyFilter {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String GROUP_ID = "family-friendly-group";
     private static final String TOPIC_IN = "sample-enriched-datastream";
-    private static final String TOPIC_OUT = "sample-datastream-es";
+    private static final String TOPIC_OUT = "es-anime-data";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Set<String> EXPLICIT_GENRES = new HashSet<>();
 
@@ -44,7 +44,7 @@ public class CSVDataFamilyFriendlyFilter {
 
         try {
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(200));
                 for (ConsumerRecord<String, String> record : records) {
                     JsonNode jsonNode = objectMapper.readTree(record.value());
                     if (isFamilyFriendly(jsonNode)) {
@@ -96,6 +96,9 @@ public class CSVDataFamilyFriendlyFilter {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 300000);  // Time before message delivery
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 200);  // Max time before sending message batch
+        props.put(ProducerConfig.ACKS_CONFIG, "all"); // Wait for all replicas to acknowledge
         return new KafkaProducer<>(props);
     }
 

@@ -68,13 +68,13 @@ public class CSVDataConsumer {
             String clientId = loadClientId();
 
             while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(200));
                 for (ConsumerRecord<String, String> record : records) {
                     useMalApi = processRecord(record, producer, clientId, useMalApi, lastMalRetryTime);
                     if (!useMalApi) {
                         Thread.sleep(JIKAN_INTERVAL);
                     }
-                    consumer.commitSync();
+//                    consumer.commitSync();
                 }
                 if (!useMalApi && System.currentTimeMillis() - lastMalRetryTime >= MAL_RETRY_INTERVAL) {
                     useMalApi = true;
@@ -102,6 +102,9 @@ public class CSVDataConsumer {
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 300000);  // Time before message delivery
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 200);  // Max time before sending message batch
+        props.put(ProducerConfig.ACKS_CONFIG, "all"); // Wait for all replicas to acknowledge
         return new KafkaConsumer<>(props);
     }
 
@@ -179,6 +182,7 @@ public class CSVDataConsumer {
                 lastMalRetryTime = System.currentTimeMillis();
             } catch (IOException e) {
                 handleIOException(e, record);
+                retryCount++;
             } catch (Exception e) {
                 System.err.println("Failed to process record: " + record.value());
                 e.printStackTrace();
@@ -188,7 +192,6 @@ public class CSVDataConsumer {
         if (!success) {
             System.err.println("Max retries reached for record: " + record.value());
         }
-
         return useMalApi;
     }
 

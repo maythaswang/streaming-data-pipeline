@@ -13,7 +13,7 @@ import java.nio.charset.StandardCharsets;
 public class DeleteIndexData {
 
     // Set the index name
-    private static final String INDEX = "to-elastic-search";
+    private static final String INDEX = "sample-datastream-es";
     private static final String ELASTICSEARCH_HOST = "http://localhost:9200";
 
     public static void main(String[] args) {
