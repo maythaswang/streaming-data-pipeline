@@ -10,5 +10,7 @@ public class KafkaConfig {
         // KafkaTopicManager.deleteTopic("user-message-count-KSTREAM-AGGREGATE-STATE-STORE-0000000004-changelog");
         // KafkaTopicManager.deleteTopic("user-message-count-KSTREAM-AGGREGATE-STATE-STORE-0000000004-repartition");
         KafkaTopicManager.getAllKafkaTopics();
+        KafkaTopicManager.deleteTopic("sample-datastream-raw");
+        KafkaTopicManager.deleteTopic("sample-datastream-es");
     }
 }

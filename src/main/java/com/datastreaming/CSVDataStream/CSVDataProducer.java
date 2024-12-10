@@ -66,6 +66,9 @@ public class CSVDataProducer {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 300000);  // Time before message delivery
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 200);  // Max time before sending message batch
+        props.put(ProducerConfig.ACKS_CONFIG, "all"); // Wait for all replicas to acknowledge
         return new KafkaProducer<>(props);
     }
 
