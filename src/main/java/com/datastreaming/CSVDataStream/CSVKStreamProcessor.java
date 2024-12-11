@@ -8,6 +8,7 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.StreamsConfig;
+import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
 
@@ -43,7 +44,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CSVKStreamProcessor {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String APPLICATION_ID = "csv-data-stream-processor";
-    private static final String INPUT_TOPIC = "sample-datastream-raw";
+    private static final String INPUT_TOPIC = "csv-raw";
     private static final String OUTPUT_TOPIC = "es-anime-data";
     private static final String MAL_API_URL_TEMPLATE = "https://api.myanimelist.net/v2/anime/%d?fields=id,title,rank,mean,genres,num_episodes,average_episode_duration,studios";
     private static final String JIKAN_API_URL_TEMPLATE = "https://api.jikan.moe/v4/anime/%d/full";
@@ -61,16 +62,11 @@ public class CSVKStreamProcessor {
     }
 
     public static void main(String[] args) {
-        Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_ID);
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
-        props.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 0);
-        props.put(StreamsConfig.STATE_DIR_CONFIG, "/kafka-streams-tmp/kafka-streams");
-        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
-        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        Properties props = getProperties();
 
         StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> inputStream = builder.stream(INPUT_TOPIC);
+        KStream<String, String> inputStream = builder.stream(INPUT_TOPIC,
+                Consumed.with(Serdes.String(), Serdes.String()));
 
         AtomicLong lastMalRetryTime = new AtomicLong();
         AtomicBoolean useMalApi = new AtomicBoolean(true);
@@ -147,6 +143,23 @@ public class CSVKStreamProcessor {
             streams.close();
             System.out.println("Kafka Streams stopped.");
         }));
+    }
+
+    /**
+     * Create the Kafka Streams properties.
+     *
+     * @return Properties
+     */
+    private static Properties getProperties() {
+        Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_ID);
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+//        props.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 0);
+        props.put(StreamsConfig.STATE_DIR_CONFIG, "/kafka-streams-tmp/kafka-streams");
+//        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, "3");
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        return props;
     }
 
     /**
