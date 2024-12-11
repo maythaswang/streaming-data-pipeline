@@ -64,6 +64,8 @@ public class CSVKStreamProcessor {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_ID);
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        props.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 0);
+        props.put(StreamsConfig.STATE_DIR_CONFIG, "/kafka-streams-tmp/kafka-streams");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
 
