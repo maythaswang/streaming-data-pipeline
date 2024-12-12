@@ -11,16 +11,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Properties;
 
-/**
- * This class reads a CSV file and sends each line as a JSON object to a Kafka topic.
- * The CSV file can be found at https://www.kaggle.com/datasets/azathoth42/myanimelist?resource=download&select=anime_filtered.csv
- * This CSV has been altered to only include SFW anime.
- * The JSON object that is sent to the Kafka topic has the following format:
- * {
- * "anime_id": <anime_id>,
- * "title": "<title>"
- * }
- */
 public class CSVDataProducer {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String TOPIC_OUT = "csv-raw";
@@ -29,18 +19,21 @@ public class CSVDataProducer {
 
     public static void main(String[] args) {
         KafkaProducer<String, String> producer = buildProducer();
+        producer.initTransactions();
 
         try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_PATH))) {
             String line;
             br.readLine(); // Skip the header line
+            producer.beginTransaction();
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
+                String key = fields[0]; // Use anime_id as the key
                 ObjectNode jsonNode = objectMapper.createObjectNode();
                 jsonNode.put("anime_id", Integer.parseInt(fields[0]));
                 jsonNode.put("title", fields[1]);
 
                 String jsonString = objectMapper.writeValueAsString(jsonNode);
-                ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_OUT, jsonString);
+                ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC_OUT, key, jsonString);
                 producer.send(record, (metadata, exception) -> {
                     if (exception != null) {
                         exception.printStackTrace();
@@ -49,7 +42,9 @@ public class CSVDataProducer {
                     }
                 });
             }
+            producer.commitTransaction();
         } catch (Exception e) {
+            producer.abortTransaction();
             e.printStackTrace();
         } finally {
             producer.close();
@@ -66,10 +61,10 @@ public class CSVDataProducer {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 300000);  // Time before message delivery
-        props.put(ProducerConfig.LINGER_MS_CONFIG, 200);  // Max time before sending message batch
-        props.put(ProducerConfig.ACKS_CONFIG, "all"); // Wait for all replicas to acknowledge
+        props.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, "csv-data-stream-processor");
+        props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 300000);
+        props.put(ProducerConfig.LINGER_MS_CONFIG, 200);
+        props.put(ProducerConfig.ACKS_CONFIG, "all");
         return new KafkaProducer<>(props);
     }
-
 }

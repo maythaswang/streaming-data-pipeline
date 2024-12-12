@@ -45,9 +45,9 @@ import java.util.Properties;
 
 public class CSVDataConsumer {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
-    private static final String GROUP_ID = "sample-ds-group";
-    private static final String TOPIC_IN = "sample-datastream-raw";
-    private static final String TOPIC_OUT = "sample-enriched-datastream";
+    private static final String GROUP_ID = "csv-consumer-group";
+    private static final String TOPIC_IN = "csv-raw";
+    private static final String TOPIC_OUT = "csv-enriched-datastream";
     private static final String MAL_API_URL_TEMPLATE = "https://api.myanimelist.net/v2/anime/%d?fields=id,title,rank,mean,genres,num_episodes,average_episode_duration,studios";
     private static final String JIKAN_API_URL_TEMPLATE = "https://api.jikan.moe/v4/anime/%d/full";
     private static final ObjectMapper objectMapper = new ObjectMapper();

@@ -26,7 +26,7 @@ import java.util.Set;
 public class CSVDataFamilyFriendlyFilter {
     private static final String BOOTSTRAP_SERVERS = "localhost:29092";
     private static final String GROUP_ID = "family-friendly-group";
-    private static final String TOPIC_IN = "sample-enriched-datastream";
+    private static final String TOPIC_IN = "csv-enriched-datastream";
     private static final String TOPIC_OUT = "es-anime-data";
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final Set<String> EXPLICIT_GENRES = new HashSet<>();
