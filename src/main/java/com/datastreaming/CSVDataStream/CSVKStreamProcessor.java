@@ -11,6 +11,10 @@ import org.apache.kafka.streams.StreamsConfig;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.kstream.KStream;
 import org.apache.kafka.streams.kstream.Produced;
+import org.apache.kafka.streams.kstream.ValueTransformerWithKey;
+import org.apache.kafka.streams.processor.ProcessorContext;
+import org.apache.kafka.streams.state.KeyValueStore;
+import org.apache.kafka.streams.state.Stores;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,52 +68,75 @@ public class CSVKStreamProcessor {
     public static void main(String[] args) {
         Properties props = getProperties();
 
-        StreamsBuilder builder = new StreamsBuilder();
-        KStream<String, String> inputStream = builder.stream(INPUT_TOPIC,
-                Consumed.with(Serdes.String(), Serdes.String()));
-
         AtomicLong lastMalRetryTime = new AtomicLong();
         AtomicBoolean useMalApi = new AtomicBoolean(true);
 
-        KStream<String, String> processedStream = inputStream.mapValues(value -> {
-            System.out.println("Received data: " + value);
-            try {
-                JsonNode jsonNode = objectMapper.readTree(value);
-                int animeId = jsonNode.get("anime_id").asInt();
-                String clientId = loadClientId();
-                int retryCount = 0;
+        StreamsBuilder builder = new StreamsBuilder();
+        KStream<String, String> inputStream = builder.stream(INPUT_TOPIC, Consumed.with(Serdes.String(), Serdes.String()));
 
-                while (retryCount < MAX_RETRIES) {
-                    try {
-                        if (!useMalApi.get() && System.currentTimeMillis() - lastMalRetryTime.get() < MAL_RETRY_INTERVAL) {
-                            Thread.sleep(JIKAN_INTERVAL);
-                        } else {
-                            useMalApi.set(true);
-                        }
 
-                        String apiUrl = useMalApi.get() ? String.format(MAL_API_URL_TEMPLATE, animeId) : String.format(JIKAN_API_URL_TEMPLATE, animeId);
-                        JsonNode responseJson = fetchApiData(apiUrl, clientId, useMalApi.get());
+        builder.addStateStore(Stores.keyValueStoreBuilder(
+                Stores.persistentKeyValueStore("anime-state-store"),
+                Serdes.String(),
+                Serdes.String()
+        ));
 
-                        ObjectNode outputJson = createOutputJson(responseJson, useMalApi.get());
-                        String processedValue = objectMapper.writeValueAsString(outputJson);
-                        System.out.println("Processed data: " + processedValue);
-                        return processedValue;
-                    } catch (SocketTimeoutException e) {
-                        useMalApi.set(false);
-                        lastMalRetryTime.set(System.currentTimeMillis());
-                    } catch (IOException e) {
-                        retryCount++;
-                    }
-                }
+        KStream<String, String> processedStream = inputStream.transformValues(() -> new ValueTransformerWithKey<>() {
+            private KeyValueStore<String, String> stateStore;
 
-                System.err.println("Max retries reached for anime ID: " + animeId);
-
-            } catch (Exception e) {
-                System.err.println("Failed to process value: " + value);
-                e.printStackTrace();
+            @Override
+            public void init(ProcessorContext context) {
+                stateStore = context.getStateStore("anime-state-store");
             }
-            return value;
-        });
+
+            @Override
+            public String transform(String readOnlyKey, String value) {
+                System.out.println("Received data: " + value);
+                try {
+                    JsonNode jsonNode = objectMapper.readTree(value);
+                    int animeId = jsonNode.get("anime_id").asInt();
+                    String clientId = loadClientId();
+                    int retryCount = 0;
+
+                    while (retryCount < MAX_RETRIES) {
+                        try {
+                            if (!useMalApi.get() && System.currentTimeMillis() - lastMalRetryTime.get() < MAL_RETRY_INTERVAL) {
+                                Thread.sleep(JIKAN_INTERVAL);
+                            } else {
+                                useMalApi.set(true);
+                            }
+
+                            String apiUrl = useMalApi.get() ? String.format(MAL_API_URL_TEMPLATE, animeId) : String.format(JIKAN_API_URL_TEMPLATE, animeId);
+                            JsonNode responseJson = fetchApiData(apiUrl, clientId, useMalApi.get());
+
+                            ObjectNode outputJson = createOutputJson(responseJson, useMalApi.get());
+                            String processedValue = objectMapper.writeValueAsString(outputJson);
+                            System.out.println("Processed data: " + processedValue);
+                            stateStore.put(readOnlyKey, processedValue);
+                            return processedValue;
+                        } catch (SocketTimeoutException e) {
+                            useMalApi.set(false);
+                            lastMalRetryTime.set(System.currentTimeMillis());
+                        } catch (IOException e) {
+                            retryCount++;
+                        }
+                    }
+
+                    System.err.println("Max retries reached for anime ID: " + animeId);
+
+                } catch (Exception e) {
+                    System.err.println("Failed to process value: " + value);
+                    e.printStackTrace();
+                }
+                return value;
+            }
+
+            @Override
+            public void close() {
+                // No-op
+            }
+        }, "anime-state-store");
+
 
         KStream<String, String> filteredStream = processedStream.filter((key, value) -> {
             System.out.println("Filtering data: " + value);
@@ -159,6 +186,8 @@ public class CSVKStreamProcessor {
 //        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, "3");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        props.put(StreamsConfig.METRICS_RECORDING_LEVEL_CONFIG, "DEBUG");
+        props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, StreamsConfig.EXACTLY_ONCE_V2);
         return props;
     }
 
