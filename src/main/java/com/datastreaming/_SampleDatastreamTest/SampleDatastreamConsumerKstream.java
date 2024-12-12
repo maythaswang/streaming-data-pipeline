@@ -1,4 +1,4 @@
-package com.datastreaming.sample_datastream_test;
+package com.datastreaming._SampleDatastreamTest;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsBuilder;
@@ -33,6 +33,7 @@ public class SampleDatastreamConsumerKstream {
         Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, APPLICATION_ID);
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
+        props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 3);
         props.put(StreamsConfig.STATESTORE_CACHE_MAX_BYTES_CONFIG, 0);
         props.put(StreamsConfig.STATE_DIR_CONFIG, "/kafka-streams-tmp/kafka-streams");
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
@@ -71,10 +72,10 @@ public class SampleDatastreamConsumerKstream {
                     outputNode.put("username", key);
                     outputNode.put("messageCount", value);
                     System.out.println(outputNode.toString());
-                    return new KeyValue<>("{\"test\": 1}", outputNode.toString());
+                    return new KeyValue<>("null", outputNode.toString());
                 })
                 .to(TOPIC_OUT, Produced.with(Serdes.String(), Serdes.String()));
-                
+
         // Build Topology
         Topology topology = streamsBuilder.build();
 
