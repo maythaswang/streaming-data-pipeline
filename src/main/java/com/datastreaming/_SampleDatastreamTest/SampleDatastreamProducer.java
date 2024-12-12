@@ -1,4 +1,4 @@
-package com.datastreaming.sample_datastream_test;
+package com.datastreaming._SampleDatastreamTest;
 
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.errors.TimeoutException;

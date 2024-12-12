@@ -24,7 +24,7 @@ curl -X POST "http://localhost:28083/connectors" \
         "name": "elasticsearch-sink-sample-datastream",
         "config": {
           "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
-          "tasks.max": "2",
+          "tasks.max": "3",
           "topics": "sample-datastream-es",
           "key.ignore": "true",
           "schema.ignore": "true",
@@ -44,7 +44,7 @@ curl -X POST "http://localhost:28083/connectors" \
         "name": "elasticsearch-sink-sample-count",
         "config": {
           "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
-          "tasks.max": "2",
+          "tasks.max": "3",
           "topics": "sample-count-es",
           "key.ignore": "true",
           "schema.ignore": "true",
@@ -64,7 +64,7 @@ curl -X POST "http://localhost:28083/connectors" \
         "name": "elasticsearch-sink-anime-data",
         "config": {
           "connector.class": "io.confluent.connect.elasticsearch.ElasticsearchSinkConnector",
-          "tasks.max": "2",
+          "tasks.max": "1",
           "topics": "es-anime-data",
           "key.ignore": "true",
           "schema.ignore": "true",
