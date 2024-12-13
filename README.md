@@ -40,10 +40,13 @@ There are 2 steps in setting up the structure.
 ### Data Pipeline structure
 
 - Please use the specified application in CSVDataStream
+- The content are stored under `/src/main/java/com/datastreaming/CSVDataStream` directory
 - `CSVDataProducer.java` -> `CSVKStreamProcessor.java` which will then write to elasticsearch topic `es-anime-data`
-
-# !!!  MORE DETAILS HERE !!!
-
+- Explaination: This version uses Kstream model instead of the traditional Producer-Consumer model.
+- `CSVDataProducer.java` is responsible for sending anime_id, title from the Kaggle dataset for `CSVKStreamProcessor.java` in which will calls APIs for more additional details and filter out explicit genres.
+- The final data will be stored in Elasticsearch Index and will use Kibana to visualize live data.
+- `CSVKStreamProcessor.java` utilize state stores and transactional messaging to avoid redundant API calls and ensure that the message are read exactly once.
+  
 -----
 
 ### Older Versions
@@ -55,9 +58,13 @@ There are 2 steps in setting up the structure.
 
 \[Version 1\]
 - Please use the specified application in `/src/main/java/com/datastreaming/MALTopRaw` and `/src/main/java/com/datastreaming/AnimeDetails` directory
+- This version uses traditional Producer-Consumer model. 
 - `MALTopRawProducer.java` -> `MALTopRawConsumer.java` -> `AnimeDetailsConsumer.java` which will then write to elasticsearch topic `to-elastic-search`
+- For this version, we uses MAL API to call 500 animes from Top Ranking Anime every call and extract anime_id, names for `AnimeDetailsConsumer.java` to get additional details from APIs to send to Elastic Search.
 
 \[Version 2\]
 - Please use the specified application in `/src/main/java/com/datastreaming/CSVDataStream`
+- This version uses traditional Producer-Consumer model.
 - `CSVDataProducer.java` -> `CSVDataConsumer.java` -> `CSVDataFamilyFriendlyFilter.java` which will then write to elasticsearch topic `es-anime-data`
+- For this version, we uses Kaggle dataset and get anime_id, names for `CSVDataConsumeer.java` to get additional details from APIs. `CSVDataFamilyFriendlyFilter.java` will filter out explicit genres before sending to Elasticsearch Index.
 
