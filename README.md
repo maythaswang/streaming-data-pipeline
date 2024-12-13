@@ -46,6 +46,14 @@ There are 2 steps in setting up the structure.
 - `CSVDataProducer.java` is responsible for sending anime_id, title from the Kaggle dataset for `CSVKStreamProcessor.java` in which will calls APIs for more additional details and filter out explicit genres.
 - The final data will be stored in Elasticsearch Index and will use Kibana to visualize live data.
 - `CSVKStreamProcessor.java` utilize state stores and transactional messaging to avoid redundant API calls and ensure that the message are read exactly once.
+
+-----
+
+### Resources
+  - The Client ID to call MAL API is stored in `src/main/resources/config.ptoperties` in which you will need to register for it.
+  - The CSV Kaggle Dataset is stored in `src/main/resources/data/anime_filtered.csv`. The dataset can be downloaded at `https://www.kaggle.com/datasets/azathoth42/myanimelist`
+
+
   
 -----
 
